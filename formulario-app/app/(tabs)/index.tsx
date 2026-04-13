@@ -6,15 +6,16 @@ import {
   TextInput,
   Button,
   StyleSheet,
-  ScrollView
+  ScrollView,
+  Alert
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaskedTextInput } from 'react-native-mask-text';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
   const router = useRouter();
 
-  // Estados do formulário
   const [nome, setNome] = useState('');
   const [rm, setRm] = useState('');
   const [curso, setCurso] = useState('');
@@ -23,27 +24,67 @@ export default function App() {
   const [telefone, setTelefone] = useState('');
   const [cpf, setCpf] = useState('');
 
-  // useEffect executado ao carregar o app
+  // 🔄 Recuperar dados ao abrir app
   useEffect(() => {
-    console.log('Aplicativo iniciado com sucesso!');
+    const carregarDados = async () => {
+      try {
+        const dadosSalvos = await AsyncStorage.getItem('usuario');
+
+        if (dadosSalvos) {
+          const dados = JSON.parse(dadosSalvos);
+
+          setNome(dados.nome || '');
+          setRm(dados.rm || '');
+          setCurso(dados.curso || '');
+          setDisciplina(dados.disciplina || '');
+          setDescricao(dados.descricao || '');
+          setTelefone(dados.telefone || '');
+          setCpf(dados.cpf || '');
+        }
+      } catch (error) {
+        console.log('Erro ao carregar dados:', error);
+      }
+    };
+
+    carregarDados();
   }, []);
 
-  // Função de envio
-  const handleEnviar = () => {
+  // 🚀 Enviar formulário
+  const handleEnviar = async () => {
+    // ✅ Validação
     if (!nome || !rm || !curso || !disciplina || !descricao || !telefone || !cpf) {
-      alert('Preencha todos os campos!');
+      Alert.alert('Erro', 'Preencha todos os campos!');
       return;
     }
 
-    router.push({
-      pathname: '/perfil',
-      params: {
-        nome,
-        rm,
-        telefone,
-        cpf
-      }
-    });
+    const dados = {
+      nome,
+      rm,
+      curso,
+      disciplina,
+      descricao,
+      telefone,
+      cpf
+    };
+
+    try {
+      // 💾 Salvar no AsyncStorage
+      await AsyncStorage.setItem('usuario', JSON.stringify(dados));
+
+      // 🔄 Navegar
+      router.push({
+        pathname: '/perfil',
+        params: {
+          nome,
+          rm,
+          telefone,
+          cpf
+        }
+      });
+
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível salvar os dados.');
+    }
   };
 
   return (
@@ -108,7 +149,7 @@ export default function App() {
           <Text style={styles.label}>Descrição</Text>
           <TextInput
             style={[styles.input, styles.textArea]}
-            placeholder="Fale um pouco sobre você (2-3 linhas)"
+            placeholder="Fale sobre você"
             value={descricao}
             onChangeText={setDescricao}
             multiline
