@@ -8,16 +8,16 @@ import {
   StyleSheet,
   ScrollView
 } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function App() {
+  const router = useRouter();
+
   // Estados do formulário
   const [nome, setNome] = useState('');
   const [curso, setCurso] = useState('');
   const [disciplina, setDisciplina] = useState('');
   const [descricao, setDescricao] = useState('');
-
-  // Estado para exibir dados enviados
-  const [dadosEnviados, setDadosEnviados] = useState(null);
 
   // useEffect executado ao carregar o app
   useEffect(() => {
@@ -26,14 +26,18 @@ export default function App() {
 
   // Função de envio
   const handleEnviar = () => {
-    const dados = {
-      nome,
-      curso,
-      disciplina,
-      descricao
-    };
+    if (!nome || !curso || !disciplina || !descricao) {
+      alert('Preencha todos os campos!');
+      return;
+    }
 
-    setDadosEnviados(dados);
+    router.push({
+      pathname: '/perfil',
+      params: {
+        nome: nome,
+        rm: 'RM12345'
+      }
+    });
   };
 
   return (
@@ -80,17 +84,6 @@ export default function App() {
             <Button title="Enviar" onPress={handleEnviar} />
           </View>
         </View>
-
-        {dadosEnviados && (
-          <View style={styles.resultado}>
-            <Text style={styles.subtitulo}>Dados Enviados:</Text>
-
-            <Text style={styles.texto}><Text style={styles.negrito}>Nome:</Text> {dadosEnviados.nome}</Text>
-            <Text style={styles.texto}><Text style={styles.negrito}>Curso:</Text> {dadosEnviados.curso}</Text>
-            <Text style={styles.texto}><Text style={styles.negrito}>Disciplina:</Text> {dadosEnviados.disciplina}</Text>
-            <Text style={styles.texto}><Text style={styles.negrito}>Descrição:</Text> {dadosEnviados.descricao}</Text>
-          </View>
-        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -129,23 +122,5 @@ const styles = StyleSheet.create({
   },
   botao: {
     marginTop: 10
-  },
-  resultado: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: '#e0f7fa',
-    borderRadius: 8
-  },
-  subtitulo: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10
-  },
-  texto: {
-    fontSize: 16,
-    marginBottom: 5
-  },
-  negrito: {
-    fontWeight: 'bold'
   }
 });
