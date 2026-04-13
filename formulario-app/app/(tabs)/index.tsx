@@ -9,15 +9,19 @@ import {
   ScrollView
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { MaskedTextInput } from 'react-native-mask-text';
 
 export default function App() {
   const router = useRouter();
 
   // Estados do formulário
   const [nome, setNome] = useState('');
+  const [rm, setRm] = useState('');
   const [curso, setCurso] = useState('');
   const [disciplina, setDisciplina] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [telefone, setTelefone] = useState('');
+  const [cpf, setCpf] = useState('');
 
   // useEffect executado ao carregar o app
   useEffect(() => {
@@ -26,7 +30,7 @@ export default function App() {
 
   // Função de envio
   const handleEnviar = () => {
-    if (!nome || !curso || !disciplina || !descricao) {
+    if (!nome || !rm || !curso || !disciplina || !descricao || !telefone || !cpf) {
       alert('Preencha todos os campos!');
       return;
     }
@@ -34,8 +38,10 @@ export default function App() {
     router.push({
       pathname: '/perfil',
       params: {
-        nome: nome,
-        rm: 'RM12345'
+        nome,
+        rm,
+        telefone,
+        cpf
       }
     });
   };
@@ -54,6 +60,15 @@ export default function App() {
             onChangeText={setNome}
           />
 
+          <Text style={styles.label}>RM</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Digite seu RM"
+            value={rm}
+            onChangeText={(text) => setRm(text.replace(/[^0-9]/g, ''))}
+            keyboardType="numeric"
+          />
+
           <Text style={styles.label}>Curso</Text>
           <TextInput
             style={styles.input}
@@ -68,6 +83,26 @@ export default function App() {
             placeholder="Digite a disciplina"
             value={disciplina}
             onChangeText={setDisciplina}
+          />
+
+          <Text style={styles.label}>Telefone</Text>
+          <MaskedTextInput
+            style={styles.input}
+            mask="(99) 99999-9999"
+            placeholder="Digite seu telefone"
+            value={telefone}
+            onChangeText={(text) => setTelefone(text)}
+            keyboardType="numeric"
+          />
+
+          <Text style={styles.label}>CPF</Text>
+          <MaskedTextInput
+            style={styles.input}
+            mask="999.999.999-99"
+            placeholder="Digite seu CPF"
+            value={cpf}
+            onChangeText={(text) => setCpf(text)}
+            keyboardType="numeric"
           />
 
           <Text style={styles.label}>Descrição</Text>
